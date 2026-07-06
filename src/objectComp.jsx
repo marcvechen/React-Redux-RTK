@@ -1,4 +1,9 @@
 function Object({ obj }) {
-  return <h1>{[obj.name, obj.age]}</h1>;
+  return (
+    <div>
+      <h1>{["name:", obj.name]}</h1>
+      <h1>{["age:", obj.age]}</h1>
+    </div>
+  );
 }
 export default Object;
