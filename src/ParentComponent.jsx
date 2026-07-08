@@ -12,13 +12,7 @@ function Counter() {
       </button>
       <button
         onClick={() =>
-          setCount((prevCount) => {
-            if (prevCount > 0) {
-              return prevCount - 1;
-            } else {
-              return 0;
-            }
-          })
+          setCount((prevCount) => (prevCount > 0 ? prevCount - 1 : 0))
         }
       >
         Уменьшить
@@ -28,7 +22,7 @@ function Counter() {
       >
         Случайное
       </button>
-      <button onClick={() => setCount(() => 0)}>Сбросить</button>
+      <button onClick={() => setCount(0)}>Сбросить</button>
     </div>
   );
 }

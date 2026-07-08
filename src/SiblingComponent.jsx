@@ -5,7 +5,7 @@ function Redev() {
   return (
     <div>
       <h2>Текущий текст: {text}</h2>
-      <button onClick={() => setText((prevText) => "REDEV")}>Redev</button>
+      <button onClick={() => setText("REDEV")}>Redev</button>
     </div>
   );
 }
