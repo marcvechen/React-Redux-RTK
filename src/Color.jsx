@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 
 function Color() {
-  const [color, setColor] = useState("red");
+  const [color, setColor] = useState(true);
   return (
     <div>
       <button
-        style={{ backgroundColor: color }}
-        onClick={() =>
-          setColor((prevColor) => (prevColor === "blue" ? "red" : "blue"))
-        }
+        style={{ backgroundColor: color ? "blue" : "red" }}
+        onClick={() => setColor((prevColor) => !prevColor)}
       >
-        {color}
+        Кнопка с цветом
       </button>
     </div>
   );
