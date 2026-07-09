@@ -1,0 +1,48 @@
+.main-div {
+  display: block;
+  align-items: center;
+  border: 0.1px solid #000000;
+  border-radius: 2%;
+  max-width: 300px;
+  padding: 10px;
+  margin: 10px;
+}
+.button-div-userProfile {
+  display: block;
+  text-align: center;
+  padding: 5px;
+}
+.button-div-CheckOut {
+  display: flex;
+  padding: 5px;
+  justify-content: space-between;
+  align-items: center;
+}
+.main-div-Checkout {
+  display: block;
+  text-align: center;
+
+  border: 0.1px solid #000000;
+  border-radius: 2%;
+  max-width: 300px;
+  padding: 10px;
+}
+.button-CheckOut {
+  border-radius: 10%;
+  border: 0.001px solid #000000;
+  max-height: 25px;
+  padding: 5px;
+  background-color: white;
+}
+.button-div-TasksList {
+  display: flex;
+  padding: 5px;
+}
+button {
+  border-radius: 5%;
+  border: 0.001px solid #000000;
+
+  margin: 2px;
+  padding: 5px;
+  background-color: white;
+}
