@@ -1,78 +1,39 @@
-import React, { useState, useEffect, use } from "react";
-import Controls from "./Controls";
+import React, { useState, useEffect, useRef } from "react";
+import List from "./List";
 function App() {
-  const [count, setUpdateCount] = useState(0);
-  const [inputCount, setInputCount] = useState(3);
-  const [load, setLoading] = useState(true);
-  const [dogs, setDogs] = useState([]);
-  const [breed, setBreed] = useState("Все породы");
-  const [breedList, setbreedList] = useState([]);
-  const handleUpdate = () => {
-    setUpdateCount((prevCount) => prevCount + 1);
-    fetchDogs(inputCount);
-  };
-  const fetchBreed = async () => {
-    try {
-      const response = await fetch("https://dog.ceo/api/breeds/list/all", {
-        method: "GET",
-      });
-      const data = await response.json();
-      setbreedList(Object.keys(data.message));
-    } catch (error) {
-      console.log("error:", error);
-    }
-  };
-  useEffect(() => {
-    fetchBreed();
-  }, []);
-
-  const fetchDogs = async (num) => {
-    try {
-      setLoading(true);
-      let url = ``;
-      if (breed == "Все породы") {
-        url = `https://dog.ceo/api/breeds/image/random/${num}`;
-      } else {
-        url = `https://dog.ceo/api/breed/${breed}/images/random/${num}`;
-      }
-      const response = await fetch(url, {
-        method: "GET",
-      });
-      const data = await response.json();
-      setDogs(data.message);
-    } catch (error) {
-      console.log("Error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    fetchDogs(3);
-  }, []);
+  const inputRef = useRef();
+  function focusInput() {
+    inputRef.current.focus();
+  }
+  const [list, setList] = useState([
+    { id: 1, text: "one" },
+    { id: 2, text: "two" },
+    { id: 3, text: "three" },
+  ]);
+  const [refInput, setRefInput] = useState("");
   return (
     <div>
-      <Controls
-        updateCount={count}
-        onUpdateClick={handleUpdate}
-        inputCount={inputCount}
-        onDogCountChange={setInputCount}
-        onBreedChange={setBreed}
-        breedList={breedList}
-      />
-      {load ? <p>Загрузка...</p> : <div></div>}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-around",
-          flexWrap: "wrap",
-          alignItems: "flex-start",
+      <input
+        ref={inputRef}
+        type="text"
+        value={refInput}
+        onChange={(e) => {
+          setRefInput(e.target.value);
         }}
-      >
-        {dogs.map((url) => (
-          <img style={{ margin: 10 }} src={url} key={url} alt="Dog" />
-        ))}
-      </div>
+        onKeyDown={(e) => {
+          if (e.key == "Enter") {
+            if (refInput.length > 0) {
+              const newObj = { id: Date.now(), text: refInput };
+              setList((prevList) => [...prevList, newObj]);
+              setRefInput("");
+            }
+          }
+        }}
+      />
+      <button onClick={focusInput}>Focus</button>
+      <List arr={list} />
     </div>
   );
 }
+
 export default App;
