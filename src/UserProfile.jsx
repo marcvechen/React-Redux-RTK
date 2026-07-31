@@ -1,11 +1,6 @@
-import React, { useState } from "react";
+import React, { memo } from "react";
 import "./Style.css";
-function Profile() {
-  const [user, setUser] = useState({
-    name: "Иван",
-    age: 25,
-    isActive: true,
-  });
+const Profile = memo(({ user, changeName, getAge, changeActive }) => {
   return (
     <div className="main-div">
       <h4>Профиль пользователя</h4>
@@ -13,35 +8,11 @@ function Profile() {
       <p>Возраст: {user.age}</p>
       <p>Активен: {user.isActive ? "Да" : "Нет"}</p>
       <div className="button-div-userProfile">
-        <button
-          onClick={() => {
-            const newName = prompt("Введіть нове ім'я:");
-            if (newName) {
-              setUser((prevUser) => ({ ...prevUser, name: newName }));
-            }
-          }}
-        >
-          Сменить имя
-        </button>
-        <button
-          onClick={() =>
-            setUser((prevUser) => ({ ...prevUser, age: prevUser.age + 1 }))
-          }
-        >
-          Увеличить возраст
-        </button>
-        <button
-          onClick={() =>
-            setUser((prevUser) => ({
-              ...prevUser,
-              isActive: !prevUser.isActive ? true : false,
-            }))
-          }
-        >
-          Переключить активность
-        </button>
+        <button onClick={changeName}>Сменить имя</button>
+        <button onClick={getAge}>Увеличить возраст</button>
+        <button onClick={changeActive}>Переключить активность</button>
       </div>
     </div>
   );
-}
+});
 export default Profile;
