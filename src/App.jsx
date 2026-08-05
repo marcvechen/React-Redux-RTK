@@ -1,7 +1,12 @@
 import Profile from "./UserProfile.jsx";
 import TasksList from "./TasksList.jsx";
 import Checkout from "./Checkout.jsx";
-import { useCallback, useState } from "react";
+import Toggle from "./Toggler.jsx";
+import { ThemeProvider } from "styled-components";
+import { useDarkMode } from "./useDarkMode.jsx";
+import { GlobalStyles } from "./globalStyles.js";
+import { lightTheme, darkTheme } from "./Themes.js";
+import { useCallback, useState, useEffect } from "react";
 const loremWords = [
   { id: 1, value: "Lorem" },
   { id: 2, value: "ipsum" },
@@ -15,11 +20,18 @@ const loremWords = [
   { id: 10, value: "do" },
 ];
 function App() {
+  const [videos, setVideos] = useState([]);
+
+  const [theme, themeToggler] = useDarkMode();
+
+  const themeMode = theme === "light" ? lightTheme : darkTheme;
+
   const [user, setUser] = useState({
     name: "Иван",
     age: 25,
     isActive: true,
   });
+
   const [tasks, setTasks] = useState([
     { id: 1, value: "Купить хлеб" },
     { id: 2, value: "Погулять с собакой" },
@@ -82,8 +94,26 @@ function App() {
     [],
   );
   const handleClearCheckout = useCallback(() => setCart(() => []), []);
+
   return (
     <div>
+      <ThemeProvider theme={themeMode}>
+        <>
+          <GlobalStyles />
+
+          <div className="App">
+            <Toggle toggleTheme={themeToggler} />
+
+            {videos.map((list, index) => (
+              <section key={index}>
+                <h2 className="section-title">{list.section}</h2>
+                <CardList list={list} />
+                <hr />
+              </section>
+            ))}
+          </div>
+        </>
+      </ThemeProvider>
       <Profile
         user={user}
         changeName={handleChange}
