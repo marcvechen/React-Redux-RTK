@@ -1,7 +1,10 @@
+import { useCallback, useState, useEffect } from "react";
 import Profile from "./UserProfile.jsx";
 import TasksList from "./TasksList.jsx";
 import Checkout from "./Checkout.jsx";
-import { useCallback, useState } from "react";
+import MyContext from "./MyContext.jsx";
+import Toggle from "./Toggler.jsx";
+
 const loremWords = [
   { id: 1, value: "Lorem" },
   { id: 2, value: "ipsum" },
@@ -15,6 +18,7 @@ const loremWords = [
   { id: 10, value: "do" },
 ];
 function App() {
+  const [isDark, setIsDark] = useState("light");
   const [user, setUser] = useState({
     name: "Иван",
     age: 25,
@@ -29,6 +33,14 @@ function App() {
     { id: 2, title: "Кепка", count: 2 },
   ]);
 
+  const handleMode = () => {
+    setIsDark((prevMode) => !prevMode);
+  };
+  useEffect(() => {
+    isDark
+      ? document.body.classList.add("dark-theme")
+      : document.body.classList.remove("dark-theme");
+  }, [isDark]);
   const handleChange = useCallback(() => {
     const newName = prompt("Введіть нове ім'я:");
     if (newName) {
@@ -84,6 +96,9 @@ function App() {
   const handleClearCheckout = useCallback(() => setCart(() => []), []);
   return (
     <div>
+      <MyContext.Provider value={{ isDark, handleMode }}>
+        <Toggle />
+      </MyContext.Provider>
       <Profile
         user={user}
         changeName={handleChange}

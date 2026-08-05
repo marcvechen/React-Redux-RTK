@@ -1,48 +1,81 @@
-.main-div {
+/* ===========================
+   Светлая тема (по умолчанию)
+   =========================== */
+
+body {
+  --bg: #ffffff;
+  --text: #000000;
+  --card: #ffffff;
+  --border: #000000;
+  --button-bg: #ffffff;
+  --button-hover: #f0f0f0;
+}
+
+/* ===========================
+   Темная тема
+   =========================== */
+
+body.dark-theme {
+  --bg: #121212;
+  --text: #f1f1f1;
+  --card: #1e1e1e;
+  --border: #3f3f3f;
+  --button-bg: #2c2c2c;
+  --button-hover: #3a3a3a;
+}
+
+/* ===========================
+   Общие стили
+   =========================== */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.main-div,
+.main-div-Checkout {
   display: block;
-  align-items: center;
-  border: 0.1px solid #000000;
-  border-radius: 2%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   max-width: 300px;
   padding: 10px;
   margin: 10px;
+  background: var(--card);
+  color: var(--text);
 }
+
 .button-div-userProfile {
   display: block;
   text-align: center;
   padding: 5px;
 }
+
 .button-div-CheckOut {
   display: flex;
-  padding: 5px;
   justify-content: space-between;
   align-items: center;
-}
-.main-div-Checkout {
-  display: block;
-  text-align: center;
-
-  border: 0.1px solid #000000;
-  border-radius: 2%;
-  max-width: 300px;
-  padding: 10px;
-}
-.button-CheckOut {
-  border-radius: 10%;
-  border: 0.001px solid #000000;
-  max-height: 25px;
   padding: 5px;
-  background-color: white;
 }
+
 .button-div-TasksList {
   display: flex;
   padding: 5px;
 }
-button {
-  border-radius: 5%;
-  border: 0.001px solid #000000;
 
+button,
+.button-CheckOut {
+  border: 1px solid var(--border);
+  border-radius: 6px;
   margin: 2px;
-  padding: 5px;
-  background-color: white;
+  padding: 5px 10px;
+  background: var(--button-bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover,
+.button-CheckOut:hover {
+  background: var(--button-hover);
 }
