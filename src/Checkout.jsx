@@ -1,11 +1,14 @@
 import React, { memo } from "react";
 import CartItem from "./CartItem.jsx";
 import "./Style.css";
-
+import LanguageContext from "./LanguageContext";
+import { useContext } from "react";
 const Checkout = memo(({ cart, addProduct, deleteProduct, clearCheckout }) => {
+  const { dictionary, handleLanguage } = useContext(LanguageContext);
+
   return (
     <div className="main-div-Checkout">
-      <h4>Корзина Товаров</h4>
+      <h4>{dictionary.checkout.checkout}</h4>
       {cart.map((item) => (
         <CartItem
           key={item.id}
@@ -15,7 +18,7 @@ const Checkout = memo(({ cart, addProduct, deleteProduct, clearCheckout }) => {
         />
       ))}
 
-      <button onClick={clearCheckout}>Очистить корзину</button>
+      <button onClick={clearCheckout}>{dictionary.checkout.removeItem}</button>
     </div>
   );
 });

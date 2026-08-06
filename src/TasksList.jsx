@@ -1,19 +1,25 @@
-import React, { memo } from "react";
+import React, { memo, useContext } from "react";
 import "./Style.css";
 import TaskItem from "./TaskItem";
+import LanguageContext from "./LanguageContext";
 
 const TasksList = memo(({ tasks, setTask, deleteTask }) => {
+  const { dictionary, handleLanguage } = useContext(LanguageContext);
+
   return (
     <div className="main-div">
-      <h4>Список Задач</h4>
+      <h4>{dictionary.task.taskList}</h4>
       <ul>
         {tasks.map((item) => (
-          <TaskItem text={item.value} key={item.id} />
+          <TaskItem
+            text={item.key ? dictionary.task[item.key] : item.value}
+            key={item.id}
+          />
         ))}
       </ul>
       <div className="button-div-TasksList">
-        <button onClick={setTask}>Добавить задачу</button>
-        <button onClick={deleteTask}>Удалить последнюю задачу</button>
+        <button onClick={setTask}>{dictionary.task.addTask}</button>
+        <button onClick={deleteTask}>{dictionary.task.removeTask}</button>
       </div>
     </div>
   );

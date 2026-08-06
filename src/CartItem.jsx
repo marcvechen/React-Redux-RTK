@@ -1,10 +1,13 @@
-import React, { memo } from "react";
-
+import React, { memo, useContext } from "react";
+import LanguageContext from "./LanguageContext";
 const CartItem = memo(({ item, addProduct, deleteProduct }) => {
+  const { dictionary, handleLanguage } = useContext(LanguageContext);
+
   return (
     <div className="button-div-CheckOut">
       <p>
-        {item.title} (Кол-во: {item.count})
+        {dictionary.checkout[item.key]} ({dictionary.checkout.quantity}{" "}
+        {item.count})
       </p>
       <button className="button-CheckOut" onClick={() => addProduct(item.id)}>
         +1
@@ -13,7 +16,7 @@ const CartItem = memo(({ item, addProduct, deleteProduct }) => {
         className="button-CheckOut"
         onClick={() => deleteProduct(item.id)}
       >
-        Удалить
+        {dictionary.checkout.removeItem}
       </button>
     </div>
   );
