@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 
-function ItemList({ search, list }) {
+const ItemList = memo(({ search, list }) => {
   const filteredList = useMemo(
     () => list.filter((item) => item.value.includes(search)),
     [search, list],
@@ -15,5 +15,5 @@ function ItemList({ search, list }) {
       </ul>
     </div>
   );
-}
+});
 export default ItemList;
