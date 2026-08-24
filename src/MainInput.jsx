@@ -42,7 +42,7 @@ function MainInput({ setTasks, setText, text, tasks, deleteTask }) {
   };
 
   const handleClear = () => {
-    return tasks
+    tasks
       .filter((item) => item.isDone === true)
       .forEach((item) => deleteTask(item.id));
   };

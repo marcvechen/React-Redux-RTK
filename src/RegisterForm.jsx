@@ -8,6 +8,7 @@ function Register() {
     register,
     handleSubmit,
     watch,
+    setError,
     formState: { errors },
   } = useForm();
   const onSubmit = async (data) => {
@@ -30,7 +31,10 @@ function Register() {
       localStorage.setItem("access_token", result.access_token);
       navigate("/");
     } catch (error) {
-      console.log(error);
+      setError("root.serverError", {
+        type: "manual",
+        message: error.message,
+      });
     } finally {
       console.log("ok");
     }
@@ -38,7 +42,14 @@ function Register() {
   const passwordWatch = watch("password");
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        style={{
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <input
           placeholder="Имя"
           {...register("name", {
@@ -77,7 +88,7 @@ function Register() {
           {...register("confirmPassword", {
             required: "Обязательное поле",
             validate: (value) =>
-              value == passwordWatch || "Пароль должен воспадать",
+              value === passwordWatch || "Пароль должен воспадать",
           })}
         />
         {errors.confirmPassword && (

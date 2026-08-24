@@ -4,6 +4,7 @@ function Login() {
   const navigate = useNavigate();
   const {
     register,
+    setError,
     handleSubmit,
     formState: { errors },
   } = useForm();
@@ -22,19 +23,29 @@ function Login() {
 
       const result = await response.json();
       if (!response.ok) {
-        throw new Error(result.message || "Ошибка входа");
+        throw new Error(result.message || "Неверный логин или пароль");
       }
       localStorage.setItem("access_token", result.access_token);
       navigate("/");
     } catch (error) {
-      console.log(error);
+      setError("root.serverError", {
+        type: "manual",
+        message: error.message,
+      });
     } finally {
       console.log("ok");
     }
   };
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        style={{
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <input
           placeholder="Почта"
           {...register("email", {
@@ -57,7 +68,11 @@ function Login() {
         {errors.password && (
           <p style={{ color: "red" }}>{errors.password.message}</p>
         )}
-
+        {errors.root?.serverError && (
+          <p style={{ color: "red", fontWeight: "bold" }}>
+            {errors.root.serverError.message}
+          </p>
+        )}
         <button type="submit">Логин</button>
       </form>
     </div>

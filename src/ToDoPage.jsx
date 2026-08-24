@@ -6,10 +6,7 @@ import Tasks from "./ToDoList";
 import Filters from "./Filters";
 function ToDoPage() {
   const [tasks, setTasks] = useState([]);
-  useEffect(
-    () => localStorage.setItem("tasks", JSON.stringify(tasks)),
-    [tasks],
-  );
+
   const getAllTasks = async () => {
     try {
       const response = await fetch(
@@ -58,14 +55,6 @@ function ToDoPage() {
       if (!response.ok) {
         throw new Error("Ошибка");
       }
-      const result = await response.json();
-      const mappedTasks = result.data.map((item) => ({
-        id: item.id,
-        title: item.title,
-        isDone: !item.completed,
-        createDate: item.createdAt,
-      }));
-      setTasks(mappedTasks);
     } catch (error) {
       console.log(error);
     }
@@ -86,14 +75,6 @@ function ToDoPage() {
       if (!response.ok) {
         throw new Error("Ошибка");
       }
-      const result = await response.json();
-      const mappedTasks = result.data.map((item) => ({
-        id: item.id,
-        title: item.title,
-        isDone: !item.completed,
-        createDate: item.createdAt,
-      }));
-      setTasks(mappedTasks);
     } catch (error) {
       console.log(error);
     }
@@ -119,14 +100,12 @@ function ToDoPage() {
       if (!response.ok) {
         throw new Error("Ошибка");
       }
-      const result = await response.json();
-      const mappedTasks = result.data.map((item) => ({
-        id: item.id,
-        title: item.title,
-        isDone: !item.completed,
-        createDate: item.createdAt,
-      }));
-      setTasks(mappedTasks);
+
+      setTasks((mappedTasks) =>
+        mappedTasks.map((item) =>
+          item.id === id ? { ...item, title: newTitle } : item,
+        ),
+      );
     } catch (error) {
       console.log(error);
     }
