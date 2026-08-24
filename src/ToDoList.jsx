@@ -1,6 +1,5 @@
-import { useState } from "react";
 import Task from "./Task";
-function Tasks({ sortedTasks, deleteTask, setDoneTask, setTitle }) {
+function Tasks({ sortedTasks, deleteTask, setDoneTask, changeTask }) {
   return (
     <div>
       {sortedTasks.length === 0 && <h1>Заданий нет</h1>}
@@ -10,7 +9,7 @@ function Tasks({ sortedTasks, deleteTask, setDoneTask, setTitle }) {
           task={task}
           deleteTask={deleteTask}
           setDoneTask={setDoneTask}
-          setTitle={setTitle}
+          changeTask={changeTask}
         />
       ))}
     </div>

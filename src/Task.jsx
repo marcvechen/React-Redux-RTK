@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 
-function Task({ task, deleteTask, setDoneTask, text, setTitle }) {
+function Task({ task, deleteTask, setDoneTask, changeTask }) {
   const [isEdit, setIsEdit] = useState(false);
   const [isText, setIsText] = useState(task.title);
   const inputRef = useRef();
@@ -11,7 +11,7 @@ function Task({ task, deleteTask, setDoneTask, text, setTitle }) {
   }, [isEdit]);
   const saveEdit = () => {
     if (isText.trim().length > 0) {
-      setTitle(task.id, isText);
+      changeTask(task.id, isText);
       setIsEdit((isEdit) => !isEdit);
     } else if (isText == "") {
       alert("Пустая строка - Напиши что нибудь");

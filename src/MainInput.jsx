@@ -1,21 +1,39 @@
-import { useState } from "react";
-
-function MainInput({ task, setTasks, tasks, setText, text }) {
+function MainInput({ setTasks, setText, text, tasks, deleteTask }) {
   const handleChange = (e) => {
     setText(e.target.value);
   };
+  const addNewTask = async () => {
+    try {
+      const response = await fetch(
+        "https://todo-redev.onrender.com/api/todos/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+          body: JSON.stringify({ title: text }),
+        },
+      );
+      const result = await response.json();
+      const newTask = {
+        id: result.id,
+        title: result.title,
+        isDone: result.completed,
+        createDate: result.createdAt,
+      };
+
+      setTasks((tasks) => [...tasks, newTask]);
+      setText("");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      console.log("ok");
+    }
+  };
   const handleClick = () => {
     if (text.trim().length > 0) {
-      setTasks((tasks) => [
-        ...tasks,
-        {
-          id: crypto.randomUUID(),
-          title: text,
-          isDone: false,
-          createDate: new Date(),
-        },
-      ]);
-      setText("");
+      addNewTask();
     } else if (text == "") {
       alert("Пустая строка - Напиши что нибудь");
     } else if (text == " ") {
@@ -23,8 +41,11 @@ function MainInput({ task, setTasks, tasks, setText, text }) {
     }
   };
 
-  const handleClear = () =>
-    setTasks((tasks) => tasks.filter((item) => item.isDone === false));
+  const handleClear = () => {
+    return tasks
+      .filter((item) => item.isDone === true)
+      .forEach((item) => deleteTask(item.id));
+  };
   return (
     <div>
       <input value={text} onChange={handleChange} required />
