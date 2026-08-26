@@ -1,16 +1,13 @@
 import { Route, Routes } from "react-router";
-import ToDoPage from "./ToDoPage";
-import AuthPage from "./AuthPage";
-import ProtectedRoute from "./ProtectedRoute";
-import PublicRoute from "./PublicRoute";
+import ToDoPage from "../pages/ToDoPage";
+import AuthPage from "../pages/AuthPage";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 function App() {
   return (
     <div>
       <Routes>
-        <Route element={<PublicRoute />}>
-          <Route path="/login" element={<AuthPage />} />
-        </Route>
+        <Route path="/login" element={<AuthPage />} />
         <Route element={<ProtectedRoute />}>
           <Route index path="/" element={<ToDoPage />} />
         </Route>

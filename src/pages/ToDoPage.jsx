@@ -1,22 +1,21 @@
 import { useState, useEffect } from "react";
 
-import Header from "./Header";
-import MainInput from "./MainInput";
-import Tasks from "./ToDoList";
-import Filters from "./Filters";
+import Header from "../components/Header";
+import MainInput from "../components/MainInput";
+import Tasks from "../features/todos/ToDoList";
+import Filters from "../features/filters/Filters";
 function ToDoPage() {
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const [tasks, setTasks] = useState([]);
 
   const getAllTasks = async () => {
     try {
-      const response = await fetch(
-        "https://todo-redev.onrender.com/api/todos?page=1&limit=100",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
+      const response = await fetch(`${BASE_URL}/todos?page=1&limit=100`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
-      );
+      });
       if (!response.ok) {
         throw new Error("Ошибка");
       }
@@ -38,20 +37,16 @@ function ToDoPage() {
     getAllTasks();
   }, []);
 
-  const [text, setText] = useState("");
   const [taskFilter, setTaskFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("newest");
   const deleteTask = async (id) => {
     try {
-      const response = await fetch(
-        `https://todo-redev.onrender.com/api/todos/${id}/`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
+      const response = await fetch(`${BASE_URL}/todos/${id}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
-      );
+      });
       if (!response.ok) {
         throw new Error("Ошибка");
       }
@@ -63,15 +58,12 @@ function ToDoPage() {
 
   const setDoneTask = async (id) => {
     try {
-      const response = await fetch(
-        `https://todo-redev.onrender.com/api/todos/${id}/toggle`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
+      const response = await fetch(`${BASE_URL}/todos/${id}/toggle`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
-      );
+      });
       if (!response.ok) {
         throw new Error("Ошибка");
       }
@@ -86,17 +78,14 @@ function ToDoPage() {
   };
   const changeTask = async (id, newTitle) => {
     try {
-      const response = await fetch(
-        `https://todo-redev.onrender.com/api/todos/${id}/`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          body: JSON.stringify({ title: newTitle }),
+      const response = await fetch(`${BASE_URL}/todos/${id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
-      );
+        body: JSON.stringify({ title: newTitle }),
+      });
       if (!response.ok) {
         throw new Error("Ошибка");
       }
@@ -113,13 +102,17 @@ function ToDoPage() {
   const countTasks = tasks.filter((item) => item.isDone === false).length;
 
   let filteredTasks;
-  if (taskFilter === "active") {
-    filteredTasks = tasks.filter((item) => item.isDone === false);
-  } else if (taskFilter === "completed") {
-    filteredTasks = tasks.filter((item) => item.isDone === true);
-  } else {
-    filteredTasks = tasks;
+  switch (taskFilter) {
+    case "active":
+      filteredTasks = tasks.filter((item) => item.isDone === false);
+      break;
+    case "completed":
+      filteredTasks = tasks.filter((item) => item.isDone === true);
+      break;
+    default:
+      filteredTasks = tasks;
   }
+
   const sortedTasks = [...filteredTasks].sort((a, b) => {
     const dateA = new Date(a.createDate).getTime();
     const dateB = new Date(b.createDate).getTime();
@@ -132,13 +125,7 @@ function ToDoPage() {
   return (
     <div>
       <Header countTasks={countTasks} />
-      <MainInput
-        setTasks={setTasks}
-        tasks={tasks}
-        text={text}
-        setText={setText}
-        deleteTask={deleteTask}
-      />
+      <MainInput setTasks={setTasks} tasks={tasks} deleteTask={deleteTask} />
       <Filters
         taskFilter={taskFilter}
         setTaskFilter={setTaskFilter}
@@ -148,7 +135,6 @@ function ToDoPage() {
         sortedTasks={sortedTasks}
         deleteTask={deleteTask}
         setDoneTask={setDoneTask}
-        text={text}
         changeTask={changeTask}
       />
     </div>

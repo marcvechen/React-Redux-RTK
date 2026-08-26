@@ -1,32 +1,28 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+function Login() {
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-function Register() {
   const navigate = useNavigate();
-
   const {
     register,
-    handleSubmit,
-    watch,
     setError,
+    handleSubmit,
     formState: { errors },
   } = useForm();
   const onSubmit = async (data) => {
     try {
-      const response = await fetch(
-        "https://todo-redev.onrender.com/api/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
+      const response = await fetch(`${BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(data),
+      });
 
       const result = await response.json();
       if (!response.ok) {
-        throw new Error(result.message || "Ошибка регистрации");
+        throw new Error(result.message || "Неверный логин или пароль");
       }
       localStorage.setItem("access_token", result.access_token);
       navigate("/");
@@ -39,7 +35,6 @@ function Register() {
       console.log("ok");
     }
   };
-  const passwordWatch = watch("password");
   return (
     <div>
       <form
@@ -50,13 +45,6 @@ function Register() {
         }}
         onSubmit={handleSubmit(onSubmit)}
       >
-        <input
-          placeholder="Имя"
-          {...register("name", {
-            required: "Обязательное поле",
-          })}
-        />
-        {errors.name && <p style={{ color: "red" }}>{errors.name.message}</p>}
         <input
           placeholder="Почта"
           {...register("email", {
@@ -74,31 +62,20 @@ function Register() {
           placeholder="Пароль"
           {...register("password", {
             required: "Обязательное поле",
-            validate: (value) =>
-              /^(?=.*[A-Z]).{6,}$/.test(value) || "Пароль слишком слабый",
           })}
         />
         {errors.password && (
           <p style={{ color: "red" }}>{errors.password.message}</p>
         )}
-
-        <input
-          type="password"
-          placeholder="Подтверждение Пароля"
-          {...register("confirmPassword", {
-            required: "Обязательное поле",
-            validate: (value) =>
-              value === passwordWatch || "Пароль должен воспадать",
-          })}
-        />
-        {errors.confirmPassword && (
-          <p style={{ color: "red" }}>{errors.confirmPassword.message}</p>
+        {errors.root?.serverError && (
+          <p style={{ color: "red", fontWeight: "bold" }}>
+            {errors.root.serverError.message}
+          </p>
         )}
-
-        <button type="submit">Регистрация</button>
+        <button type="submit">Логин</button>
       </form>
     </div>
   );
 }
 
-export default Register;
+export default Login;
