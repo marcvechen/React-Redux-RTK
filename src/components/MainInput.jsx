@@ -24,8 +24,6 @@ function MainInput({ setTasks, tasks, deleteTask }) {
       setTasks((tasks) => [
         ...tasks,
         {
-          id: result.id,
-          title: result.title,
           isDone: result.completed,
           createDate: result.createdAt,
         },

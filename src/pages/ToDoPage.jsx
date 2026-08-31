@@ -104,10 +104,10 @@ function ToDoPage() {
   let filteredTasks;
   switch (taskFilter) {
     case "active":
-      filteredTasks = tasks.filter((item) => item.isDone === false);
+      filteredTasks = tasks.filter((item) => !item.isDone);
       break;
     case "completed":
-      filteredTasks = tasks.filter((item) => item.isDone === true);
+      filteredTasks = tasks.filter((item) => item.isDone);
       break;
     default:
       filteredTasks = tasks;
