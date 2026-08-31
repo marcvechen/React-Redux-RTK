@@ -1,46 +1,47 @@
-import { useState, useEffect } from "react";
-
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Header from "../components/Header";
 import MainInput from "../components/MainInput";
 import Tasks from "../features/todos/ToDoList";
 import Filters from "../features/filters/Filters";
+import { useMemo } from "react";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const getAllTasks = async () => {
+  const response = await fetch(`${BASE_URL}/todos?page=1&limit=100`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Ошибка");
+  }
+  const result = await response.json();
+  return result.data.map((item) => ({
+    id: item.id,
+    title: item.title,
+    isDone: item.completed,
+    createDate: item.createdAt,
+  }));
+};
+
 function ToDoPage() {
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-  const [tasks, setTasks] = useState([]);
-
-  const getAllTasks = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/todos?page=1&limit=100`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Ошибка");
-      }
-      const result = await response.json();
-      const mappedTasks = result.data.map((item) => ({
-        id: item.id,
-        title: item.title,
-        isDone: item.completed,
-        createDate: item.createdAt,
-      }));
-      setTasks(mappedTasks);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      console.log("ok");
-    }
-  };
-  useEffect(() => {
-    getAllTasks();
-  }, []);
-
   const [taskFilter, setTaskFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("newest");
-  const deleteTask = async (id) => {
-    try {
+  const queryClient = useQueryClient();
+  const {
+    data: tasks = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: getAllTasks,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
       const response = await fetch(`${BASE_URL}/todos/${id}/`, {
         method: "DELETE",
         headers: {
@@ -50,14 +51,13 @@ function ToDoPage() {
       if (!response.ok) {
         throw new Error("Ошибка");
       }
-    } catch (error) {
-      console.log(error);
-    }
-    setTasks((tasks) => tasks.filter((item) => item.id !== id));
-  };
-
-  const setDoneTask = async (id) => {
-    try {
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
+  const setDoneTask = useMutation({
+    mutationFn: async (id) => {
       const response = await fetch(`${BASE_URL}/todos/${id}/toggle`, {
         method: "PATCH",
         headers: {
@@ -67,17 +67,13 @@ function ToDoPage() {
       if (!response.ok) {
         throw new Error("Ошибка");
       }
-    } catch (error) {
-      console.log(error);
-    }
-    setTasks((tasks) =>
-      tasks.map((item) =>
-        item.id === id ? { ...item, isDone: !item.isDone } : item,
-      ),
-    );
-  };
-  const changeTask = async (id, newTitle) => {
-    try {
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
+  const changeTask = useMutation({
+    mutationFn: async ({ id, newTitle }) => {
       const response = await fetch(`${BASE_URL}/todos/${id}/`, {
         method: "PATCH",
         headers: {
@@ -89,43 +85,39 @@ function ToDoPage() {
       if (!response.ok) {
         throw new Error("Ошибка");
       }
-
-      setTasks((mappedTasks) =>
-        mappedTasks.map((item) =>
-          item.id === id ? { ...item, title: newTitle } : item,
-        ),
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const countTasks = tasks.filter((item) => item.isDone === false).length;
-
-  let filteredTasks;
-  switch (taskFilter) {
-    case "active":
-      filteredTasks = tasks.filter((item) => !item.isDone);
-      break;
-    case "completed":
-      filteredTasks = tasks.filter((item) => item.isDone);
-      break;
-    default:
-      filteredTasks = tasks;
-  }
-
-  const sortedTasks = [...filteredTasks].sort((a, b) => {
-    const dateA = new Date(a.createDate).getTime();
-    const dateB = new Date(b.createDate).getTime();
-    if (dateFilter === "newest") {
-      return dateB - dateA;
-    } else {
-      return dateA - dateB;
-    }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
   });
+  const countTasks = tasks.filter((item) => !item.isDone).length;
+
+  const sortedTasks = useMemo(() => {
+    let filtered;
+    switch (taskFilter) {
+      case "active":
+        filtered = tasks.filter((item) => !item.isDone);
+        break;
+      case "completed":
+        filtered = tasks.filter((item) => item.isDone);
+        break;
+      default:
+        filtered = tasks;
+    }
+
+    return [...filtered].sort((a, b) => {
+      const dateA = new Date(a.createDate).getTime();
+      const dateB = new Date(b.createDate).getTime();
+      return dateFilter === "newest" ? dateB - dateA : dateA - dateB;
+    });
+  }, [tasks, taskFilter, dateFilter]);
+  if (isLoading) return <p>Загрузка...</p>;
+  if (isError) return <p>{error.message}</p>;
   return (
     <div>
       <Header countTasks={countTasks} />
-      <MainInput setTasks={setTasks} tasks={tasks} deleteTask={deleteTask} />
+      <MainInput tasks={tasks} deleteTask={deleteMutation.mutate} />
       <Filters
         taskFilter={taskFilter}
         setTaskFilter={setTaskFilter}
@@ -133,11 +125,12 @@ function ToDoPage() {
       />
       <Tasks
         sortedTasks={sortedTasks}
-        deleteTask={deleteTask}
-        setDoneTask={setDoneTask}
-        changeTask={changeTask}
+        deleteTask={deleteMutation.mutate}
+        setDoneTask={setDoneTask.mutate}
+        changeTask={(id, newTitle) => changeTask.mutate({ id, newTitle })}
       />
     </div>
   );
 }
+
 export default ToDoPage;

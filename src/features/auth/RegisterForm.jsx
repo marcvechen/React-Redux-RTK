@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { useMutation } from "@tanstack/react-query";
 
 function Register() {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -13,8 +14,8 @@ function Register() {
     setError,
     formState: { errors },
   } = useForm();
-  const onSubmit = async (data) => {
-    try {
+  const registerMutation = useMutation({
+    mutationFn: async (data) => {
       const response = await fetch(`${BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
@@ -27,17 +28,20 @@ function Register() {
       if (!response.ok) {
         throw new Error(result.message || "Ошибка регистрации");
       }
+      return result;
+    },
+    onSuccess: (result) => {
       localStorage.setItem("access_token", result.access_token);
       navigate("/");
-    } catch (error) {
+    },
+    onError: (error) => {
       setError("root.serverError", {
         type: "manual",
         message: error.message,
       });
-    } finally {
-      console.log("ok");
-    }
-  };
+    },
+  });
+
   const passwordWatch = watch("password");
   return (
     <div>
@@ -47,8 +51,11 @@ function Register() {
           alignItems: "center",
           flexDirection: "column",
         }}
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit((data) => registerMutation.mutate(data))}
       >
+        {errors.root?.serverError && (
+          <p style={{ color: "red" }}>{errors.root.serverError.message}</p>
+        )}
         <input
           placeholder="Имя"
           {...register("name", {
@@ -94,7 +101,9 @@ function Register() {
           <p style={{ color: "red" }}>{errors.confirmPassword.message}</p>
         )}
 
-        <button type="submit">Регистрация</button>
+        <button type="submit" disabled={registerMutation.isPending}>
+          Регистрация
+        </button>
       </form>
     </div>
   );

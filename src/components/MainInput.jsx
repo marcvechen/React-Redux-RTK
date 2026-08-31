@@ -1,43 +1,37 @@
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-function MainInput({ setTasks, tasks, deleteTask }) {
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+function MainInput({ tasks, deleteTask }) {
   const [text, setText] = useState("");
+  const queryClient = useQueryClient();
 
   const handleChange = (e) => {
     setText(e.target.value);
   };
-  const addNewTask = async () => {
-    try {
+  const addNewTask = useMutation({
+    mutationFn: async (newTitle) => {
       const response = await fetch(`${BASE_URL}/todos/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
-        body: JSON.stringify({ title: text }),
+        body: JSON.stringify({ title: newTitle }),
       });
       if (!response.ok) {
         throw new Error("Ошибка");
       }
-      const result = await response.json();
-      setTasks((tasks) => [
-        ...tasks,
-        {
-          isDone: result.completed,
-          createDate: result.createdAt,
-        },
-      ]);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setText("");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      console.log("ok");
-    }
-  };
+    },
+  });
   const handleClick = () => {
     if (text.trim().length > 0) {
-      addNewTask();
+      addNewTask.mutate(text);
     } else {
       alert("Пустая строка - Напиши что нибудь");
     }

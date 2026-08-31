@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 function Login() {
@@ -10,8 +11,8 @@ function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const onSubmit = async (data) => {
-    try {
+  const loginMutation = useMutation({
+    mutationFn: async (data) => {
       const response = await fetch(`${BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
@@ -24,17 +25,19 @@ function Login() {
       if (!response.ok) {
         throw new Error(result.message || "Неверный логин или пароль");
       }
+      return result;
+    },
+    onSuccess: (result) => {
       localStorage.setItem("access_token", result.access_token);
       navigate("/");
-    } catch (error) {
+    },
+    onError: (error) => {
       setError("root.serverError", {
         type: "manual",
         message: error.message,
       });
-    } finally {
-      console.log("ok");
-    }
-  };
+    },
+  });
   return (
     <div>
       <form
@@ -43,8 +46,11 @@ function Login() {
           alignItems: "center",
           flexDirection: "column",
         }}
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit((data) => loginMutation.mutate(data))}
       >
+        {errors.root?.serverError && (
+          <p style={{ color: "red" }}>{errors.root.serverError.message}</p>
+        )}
         <input
           placeholder="Почта"
           {...register("email", {
@@ -67,12 +73,9 @@ function Login() {
         {errors.password && (
           <p style={{ color: "red" }}>{errors.password.message}</p>
         )}
-        {errors.root?.serverError && (
-          <p style={{ color: "red", fontWeight: "bold" }}>
-            {errors.root.serverError.message}
-          </p>
-        )}
-        <button type="submit">Логин</button>
+        <button type="submit" disabled={loginMutation.isPending}>
+          Логин
+        </button>
       </form>
     </div>
   );
