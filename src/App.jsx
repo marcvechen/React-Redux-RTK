@@ -1,86 +1,70 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Header from "./Header";
 import MainInput from "./MainInput";
-import Tasks from "./ToDoList";
-import Task from "./Task";
+import ToDoList from "./ToDoList";
 import Filters from "./Filters";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { deleteTaskAction } from "./redux/actions/deleteTaskAction";
+import { doneTaskAction } from "./redux/actions/doneTaskAction";
+import { changeTitleAction } from "./redux/actions/changeTitleAction";
+import { useMemo } from "react";
 function App() {
-  const savedTasks = localStorage.getItem("tasks");
-  const [tasks, setTasks] = useState(
-    savedTasks !== null
-      ? JSON.parse(savedTasks)
-      : [
-          {
-            id: 1,
-            title: "Выучить React/Redux + заработать дэнги",
-            isDone: false,
-            createDate: new Date(),
-          },
-        ],
-  );
+  const dispatch = useDispatch();
+  const { value: text } = useSelector((store) => store.text);
+  const { value: tasks } = useSelector((store) => store.tasks);
+  const [taskFilter, setTaskFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("newest");
+
   useEffect(
     () => localStorage.setItem("tasks", JSON.stringify(tasks)),
     [tasks],
   );
 
-  const [text, setText] = useState("");
-  const [taskFilter, setTaskFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("newest");
   const deleteTask = (id) => {
-    setTasks((tasks) => tasks.filter((item) => item.id !== id));
+    dispatch(deleteTaskAction(id));
   };
   const setDoneTask = (id) => {
-    setTasks((tasks) =>
-      tasks.map((item) =>
-        item.id === id ? { ...item, isDone: !item.isDone } : item,
-      ),
-    );
+    dispatch(doneTaskAction(id));
   };
   const setTitle = (id, newTitle) => {
-    setTasks((tasks) =>
-      tasks.map((item) =>
-        item.id === id ? { ...item, title: newTitle } : item,
-      ),
-    );
+    dispatch(changeTitleAction(id, newTitle));
   };
   const countTasks = tasks.filter((item) => item.isDone === false).length;
 
-  let filteredTasks;
-  if (taskFilter === "active") {
-    filteredTasks = tasks.filter((item) => item.isDone === false);
-  } else if (taskFilter === "completed") {
-    filteredTasks = tasks.filter((item) => item.isDone === true);
-  } else {
-    filteredTasks = tasks;
-  }
-  const sortedTasks = [...filteredTasks].sort((a, b) => {
-    const dateA = new Date(a.createDate).getTime();
-    const dateB = new Date(b.createDate).getTime();
-    if (dateFilter === "newest") {
-      return dateB - dateA;
+  const sortedTasks = useMemo(() => {
+    let filteredTasks;
+    if (taskFilter === "active") {
+      filteredTasks = tasks.filter((item) => item.isDone === false);
+    } else if (taskFilter === "completed") {
+      filteredTasks = tasks.filter((item) => item.isDone === true);
     } else {
-      return dateA - dateB;
+      filteredTasks = tasks;
     }
-  });
+    return [...filteredTasks].sort((a, b) => {
+      const dateA = new Date(a.createDate).getTime();
+      const dateB = new Date(b.createDate).getTime();
+
+      if (dateFilter === "newest") {
+        return dateB - dateA;
+      } else {
+        return dateA - dateB;
+      }
+    });
+  }, [tasks, taskFilter, dateFilter]);
   return (
     <div>
       <Header countTasks={countTasks} />
-      <MainInput
-        setTasks={setTasks}
-        tasks={tasks}
-        text={text}
-        setText={setText}
-      />
+      <MainInput text={text} dispatch={dispatch} />
       <Filters
         taskFilter={taskFilter}
         setTaskFilter={setTaskFilter}
         setDateFilter={setDateFilter}
       />
-      <Tasks
+      <ToDoList
         sortedTasks={sortedTasks}
         deleteTask={deleteTask}
         setDoneTask={setDoneTask}
-        text={text}
         setTitle={setTitle}
       />
     </div>

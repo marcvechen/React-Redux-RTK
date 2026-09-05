@@ -1,6 +1,6 @@
-import { useState } from "react";
 import Task from "./Task";
-function Tasks({ sortedTasks, deleteTask, setDoneTask, setTitle }) {
+
+function ToDoList({ sortedTasks, deleteTask, setDoneTask, setTitle }) {
   return (
     <div>
       {sortedTasks.length === 0 && <h1>Заданий нет</h1>}
@@ -16,4 +16,4 @@ function Tasks({ sortedTasks, deleteTask, setDoneTask, setTitle }) {
     </div>
   );
 }
-export default Tasks;
+export default ToDoList;

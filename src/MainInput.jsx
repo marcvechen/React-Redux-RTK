@@ -1,21 +1,14 @@
-import { useState } from "react";
+import { createTaskAction } from "./redux/actions/tasksActions";
+import { deleteDoneTasksAction } from "./redux/actions/deleteDoneTasksAction";
 
-function MainInput({ task, setTasks, tasks, setText, text }) {
+function MainInput({ dispatch, text }) {
   const handleChange = (e) => {
-    setText(e.target.value);
+    dispatch({ type: "change", payload: e.target.value });
   };
   const handleClick = () => {
     if (text.trim().length > 0) {
-      setTasks((tasks) => [
-        ...tasks,
-        {
-          id: crypto.randomUUID(),
-          title: text,
-          isDone: false,
-          createDate: new Date(),
-        },
-      ]);
-      setText("");
+      dispatch(createTaskAction(text));
+      dispatch({ type: "zero" });
     } else if (text == "") {
       alert("Пустая строка - Напиши что нибудь");
     } else if (text == " ") {
@@ -23,8 +16,7 @@ function MainInput({ task, setTasks, tasks, setText, text }) {
     }
   };
 
-  const handleClear = () =>
-    setTasks((tasks) => tasks.filter((item) => item.isDone === false));
+  const handleClear = () => dispatch(deleteDoneTasksAction());
   return (
     <div>
       <input value={text} onChange={handleChange} required />

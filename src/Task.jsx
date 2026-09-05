@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 
-function Task({ task, deleteTask, setDoneTask, text, setTitle }) {
+function Task({ task, deleteTask, setDoneTask, setTitle }) {
   const [isEdit, setIsEdit] = useState(false);
   const [isText, setIsText] = useState(task.title);
   const inputRef = useRef();

@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 function Filters({ setTaskFilter, setDateFilter }) {
   const handleTaskFilter = (e) => {
     setTaskFilter(e.target.value);
