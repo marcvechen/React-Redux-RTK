@@ -5,9 +5,7 @@ import ToDoList from "./ToDoList";
 import Filters from "./Filters";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { deleteTaskAction } from "./redux/actions/deleteTaskAction";
-import { doneTaskAction } from "./redux/actions/doneTaskAction";
-import { changeTitleAction } from "./redux/actions/changeTitleAction";
+import { changeTask, doneTask, deleteTask } from "./redux/slices/tasksSlice";
 import { useMemo } from "react";
 function App() {
   const dispatch = useDispatch();
@@ -21,14 +19,14 @@ function App() {
     [tasks],
   );
 
-  const deleteTask = (id) => {
-    dispatch(deleteTaskAction(id));
+  const setDeleteTask = (id) => {
+    dispatch(deleteTask({ id }));
   };
   const setDoneTask = (id) => {
-    dispatch(doneTaskAction(id));
+    dispatch(doneTask({ id }));
   };
   const setTitle = (id, newTitle) => {
-    dispatch(changeTitleAction(id, newTitle));
+    dispatch(changeTask({ id, newTitle }));
   };
   const countTasks = tasks.filter((item) => item.isDone === false).length;
 
@@ -63,7 +61,7 @@ function App() {
       />
       <ToDoList
         sortedTasks={sortedTasks}
-        deleteTask={deleteTask}
+        deleteTask={setDeleteTask}
         setDoneTask={setDoneTask}
         setTitle={setTitle}
       />

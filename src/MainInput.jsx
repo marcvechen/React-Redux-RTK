@@ -1,14 +1,13 @@
-import { createTaskAction } from "./redux/actions/tasksActions";
-import { deleteDoneTasksAction } from "./redux/actions/deleteDoneTasksAction";
-
+import { change, zero } from "./redux/slices/inputTextSlice";
+import { add, deleteDoneTasks } from "./redux/slices/tasksSlice";
 function MainInput({ dispatch, text }) {
   const handleChange = (e) => {
-    dispatch({ type: "change", payload: e.target.value });
+    dispatch(change(e.target.value));
   };
   const handleClick = () => {
     if (text.trim().length > 0) {
-      dispatch(createTaskAction(text));
-      dispatch({ type: "zero" });
+      dispatch(add(text));
+      dispatch(zero());
     } else if (text == "") {
       alert("Пустая строка - Напиши что нибудь");
     } else if (text == " ") {
@@ -16,7 +15,7 @@ function MainInput({ dispatch, text }) {
     }
   };
 
-  const handleClear = () => dispatch(deleteDoneTasksAction());
+  const handleClear = () => dispatch(deleteDoneTasks());
   return (
     <div>
       <input value={text} onChange={handleChange} required />
