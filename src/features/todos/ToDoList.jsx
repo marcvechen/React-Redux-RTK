@@ -1,5 +1,5 @@
 import Task from "./Task";
-function Tasks({ sortedTasks, deleteTask, setDoneTask, changeTask }) {
+function Tasks({ sortedTasks, handleRemove, setDoneTask, changeTask }) {
   return (
     <div>
       {sortedTasks.length === 0 && <h1>Заданий нет</h1>}
@@ -7,7 +7,7 @@ function Tasks({ sortedTasks, deleteTask, setDoneTask, changeTask }) {
         <Task
           key={task.id}
           task={task}
-          deleteTask={deleteTask}
+          handleRemove={handleRemove}
           setDoneTask={setDoneTask}
           changeTask={changeTask}
         />

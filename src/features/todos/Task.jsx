@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 
-function Task({ task, deleteTask, setDoneTask, changeTask }) {
+function Task({ task, handleRemove, setDoneTask, changeTask }) {
   const [isEdit, setIsEdit] = useState(false);
   const [isText, setIsText] = useState(task.title);
   const inputRef = useRef();
@@ -58,7 +58,7 @@ function Task({ task, deleteTask, setDoneTask, changeTask }) {
       </button>
       <button
         onClick={() => {
-          deleteTask(task.id);
+          handleRemove(task.id);
         }}
       >
         ❌

@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getTasks,
+  deleteTask,
+  setDoneTask,
+  changeTask,
+} from "../redux/todosSlice";
 import Header from "../components/Header";
 import MainInput from "../components/MainInput";
 import Tasks from "../features/todos/ToDoList";
@@ -7,98 +13,24 @@ import Filters from "../features/filters/Filters";
 function ToDoPage() {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const [tasks, setTasks] = useState([]);
-
-  const getAllTasks = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/todos?page=1&limit=100`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Ошибка");
-      }
-      const result = await response.json();
-      const mappedTasks = result.data.map((item) => ({
-        id: item.id,
-        title: item.title,
-        isDone: item.completed,
-        createDate: item.createdAt,
-      }));
-      setTasks(mappedTasks);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      console.log("ok");
-    }
-  };
+  const { item: tasks, loading, error } = useSelector((state) => state.todos);
+  const dispatch = useDispatch();
   useEffect(() => {
-    getAllTasks();
-  }, []);
+    dispatch(getTasks());
+  }, [dispatch]);
 
   const [taskFilter, setTaskFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("newest");
-  const deleteTask = async (id) => {
-    try {
-      const response = await fetch(`${BASE_URL}/todos/${id}/`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Ошибка");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-    setTasks((tasks) => tasks.filter((item) => item.id !== id));
+  const handleRemove = (id) => {
+    dispatch(deleteTask(id));
+  };
+  const handleSetDoneTask = (id) => {
+    dispatch(setDoneTask(id));
+  };
+  const handlechangeTask = (id, newTitle) => {
+    dispatch(changeTask({ id, newTitle }));
   };
 
-  const setDoneTask = async (id) => {
-    try {
-      const response = await fetch(`${BASE_URL}/todos/${id}/toggle`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Ошибка");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-    setTasks((tasks) =>
-      tasks.map((item) =>
-        item.id === id ? { ...item, isDone: !item.isDone } : item,
-      ),
-    );
-  };
-  const changeTask = async (id, newTitle) => {
-    try {
-      const response = await fetch(`${BASE_URL}/todos/${id}/`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify({ title: newTitle }),
-      });
-      if (!response.ok) {
-        throw new Error("Ошибка");
-      }
-
-      setTasks((mappedTasks) =>
-        mappedTasks.map((item) =>
-          item.id === id ? { ...item, title: newTitle } : item,
-        ),
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
   const countTasks = tasks.filter((item) => item.isDone === false).length;
 
   let filteredTasks;
@@ -125,17 +57,18 @@ function ToDoPage() {
   return (
     <div>
       <Header countTasks={countTasks} />
-      <MainInput setTasks={setTasks} tasks={tasks} deleteTask={deleteTask} />
+      <MainInput handleRemove={handleRemove} />
       <Filters
         taskFilter={taskFilter}
         setTaskFilter={setTaskFilter}
         setDateFilter={setDateFilter}
       />
+
       <Tasks
+        changeTask={handlechangeTask}
+        handleRemove={handleRemove}
         sortedTasks={sortedTasks}
-        deleteTask={deleteTask}
-        setDoneTask={setDoneTask}
-        changeTask={changeTask}
+        setDoneTask={handleSetDoneTask}
       />
     </div>
   );

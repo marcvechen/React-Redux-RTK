@@ -1,57 +1,53 @@
 import { useState } from "react";
-
-function MainInput({ setTasks, tasks, deleteTask }) {
+import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { addTask } from "../redux/todosSlice";
+function MainInput({ handleRemove }) {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [text, setText] = useState("");
-
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setText(e.target.value);
   };
-  const addNewTask = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/todos/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify({ title: text }),
-      });
-      if (!response.ok) {
-        throw new Error("Ошибка");
-      }
-      const result = await response.json();
-      setTasks((tasks) => [
-        ...tasks,
-        {
-          isDone: result.completed,
-          createDate: result.createdAt,
-        },
-      ]);
-      setText("");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      console.log("ok");
-    }
-  };
+  const { item: tasks, loading, error } = useSelector((state) => state.todos);
+  const dispatch = useDispatch();
   const handleClick = () => {
     if (text.trim().length > 0) {
-      addNewTask();
+      dispatch(addTask(text));
+      setText("");
     } else {
       alert("Пустая строка - Напиши что нибудь");
     }
   };
+  const handleEnter = (e) => {
+    if (e.key === "Enter") {
+      handleClick();
+    } else if (e.key === "Escape") {
+      setText("");
+    }
+  };
 
   const handleClear = () => {
-    tasks.filter((item) => item.isDone).forEach((item) => deleteTask(item.id));
+    tasks
+      .filter((item) => item.isDone)
+      .forEach((item) => handleRemove(item.id));
+  };
+  const handleLogOut = () => {
+    localStorage.removeItem("access_token");
+    navigate("/login");
   };
   return (
     <div>
-      <input value={text} onChange={handleChange} required />
+      <input
+        value={text}
+        onChange={handleChange}
+        onKeyDown={handleEnter}
+        required
+      />
 
       <button onClick={handleClick}>Добавить задачу</button>
       <button onClick={handleClear}>Удалить выполненное</button>
+      <button onClick={handleLogOut}>Log out</button>
     </div>
   );
 }
