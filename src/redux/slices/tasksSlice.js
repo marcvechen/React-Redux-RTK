@@ -20,23 +20,23 @@ const tasksSlice = createSlice({
   reducers: {
     add(state, action) {
       state.value.push({
-        id: crypto.randomUUID(),
-        title: action.payload,
+        id: action.payload.id,
+        title: action.payload.text,
         isDone: false,
-        createDate: new Date().toISOString(),
+        createDate: action.payload.createDate,
       });
     },
     changeTask(state, action) {
-      state.value = state.value.map((item) =>
-        item.id == action.payload.id
-          ? { ...item, title: action.payload.newTitle }
-          : item,
-      );
+      const task = state.value.find((item) => item.id == action.payload.id);
+      if (task) {
+        task.title = action.payload.newTitle;
+      }
     },
     doneTask(state, action) {
-      state.value = state.value.map((item) =>
-        item.id == action.payload.id ? { ...item, isDone: !item.isDone } : item,
-      );
+      const task = state.value.find((item) => item.id == action.payload.id);
+      if (task) {
+        task.isDone = !task.isDone;
+      }
     },
     deleteTask(state, action) {
       state.value = state.value.filter((item) => item.id !== action.payload.id);

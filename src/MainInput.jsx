@@ -6,7 +6,13 @@ function MainInput({ dispatch, text }) {
   };
   const handleClick = () => {
     if (text.trim().length > 0) {
-      dispatch(add(text));
+      dispatch(
+        add({
+          id: crypto.randomUUID(),
+          createDate: new Date().toISOString(),
+          text,
+        }),
+      );
       dispatch(zero());
     } else if (text == "") {
       alert("Пустая строка - Напиши что нибудь");
